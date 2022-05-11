@@ -182,7 +182,7 @@ check_rundir:
 		echo "***** or set CHECK_RUN_DIR=0"; exit 1; \
 	fi
 
-everything: all mdadm.static swap_super test_stripe raid6check \
+everything: all swap_super test_stripe raid6check \
 	mdadm.Os mdadm.O2 man
 everything-test: all mdadm.static swap_super test_stripe \
 	mdadm.Os mdadm.O2 man
