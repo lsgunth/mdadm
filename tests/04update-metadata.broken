@@ -1,0 +1,8 @@
+always fails
+
+Fails with error:
+
+  ERROR: /dev/md0 isn't a block device.
+
+Test checks if converting metadata from 0.9 to 1.0 passes. As 0.9
+is no longer supported, this test is probably obsolete.

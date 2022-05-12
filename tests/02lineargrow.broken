@@ -1,0 +1,5 @@
+always fails
+
+Fails on 1.1 metadata with message:
+
+ERROR: size is wrong for /dev/md0: 1 * 19996 (chunk=1) = 39992, not 113856

@@ -1,0 +1,7 @@
+always fails
+
+Fails with the following errors:
+
+  mdadm: /dev/loop3 has no superblock - assembly aborted
+
+  ERROR: /dev/md2 isn't a block device.

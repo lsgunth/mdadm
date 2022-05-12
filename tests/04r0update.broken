@@ -1,0 +1,14 @@
+always fails
+
+Fails with errors:
+
+  ERROR: /dev/md0 isn't a block device.
+
+Likely due to using 0.9 metadata. If metadata 0.9 is removed from the
+test it fails with:
+
+  mdadm: --update=super-minor not understood for 1.x metadata
+
+  ERROR minors should be '0 0 1' but are '  '
+
+Possibly irrelevant now that 0.9 metadata is unsupported?
