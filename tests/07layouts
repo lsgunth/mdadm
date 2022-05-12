@@ -43,7 +43,6 @@ checkgeo() {
 
 
 bu=/tmp/md-test-backup
-rm -f $bu
 
 # first a degraded 5 device raid5
 mdadm -CR $md0 -l5 -n5 $dev0 $dev1 missing $dev2 $dev3
@@ -58,6 +57,7 @@ l5[4]=parity-first
 l5[5]=parity-last
 for layout in 0 1 2 3 4 5 0
 do
+ rm -f $bu
  mdadm -G $md0 --layout=${l5[$layout]} --backup-file $bu
  checkgeo md0 raid5 5 $[512*1024] $layout
  dotest 4
@@ -85,6 +85,7 @@ l6[19]=right-symmetric-6
 l6[20]=parity-first-6
 for layout in 0 1 2 3 4 5 8 9 10 16 17 18 19 20 0
 do
+ rm -f $bu
  mdadm -G $md0 --layout=${l6[$layout]} --backup-file $bu
  checkgeo md0 raid6 5 $[512*1024] $layout
  dotest 3
