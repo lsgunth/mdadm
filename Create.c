@@ -173,11 +173,12 @@ static pid_t write_zeroes_fork(int fd, struct shape *s, struct supertype *st,
 
 static int wait_for_zero_forks(int *zero_pids, int count)
 {
-	int wstatus, ret = 0, i, sfd, wait_count = 0;
+	int wst, ret = 0, i, sfd, wait_count = 0;
 	struct signalfd_siginfo fdsi;
 	bool interrupted = false;
 	sigset_t sigset;
 	ssize_t s;
+	pid_t pid;
 
 	for (i = 0; i < count; i++)
 		if (zero_pids[i])
@@ -196,7 +197,7 @@ static int wait_for_zero_forks(int *zero_pids, int count)
 		return 1;
 	}
 
-	while (1) {
+	while (wait_count) {
 		s = read(sfd, &fdsi, sizeof(fdsi));
 		if (s != sizeof(fdsi)) {
 			pr_err("Invalid signalfd read: %s\n", strerror(errno));
@@ -209,22 +210,24 @@ static int wait_for_zero_forks(int *zero_pids, int count)
 			pr_info("Interrupting zeroing processes, please wait...\n");
 			interrupted = true;
 		} else if (fdsi.ssi_signo == SIGCHLD) {
-			if (!--wait_count)
-				break;
+			for (i = 0; i < count; i++) {
+				if (!zero_pids[i])
+					continue;
+
+				pid = waitpid(zero_pids[i], &wst,
+					      WNOHANG);
+				if (pid <= 0)
+					continue;
+
+				zero_pids[i] = 0;
+				if (!WIFEXITED(wst) || WEXITSTATUS(wst))
+					ret = 1;
+				wait_count--;
+			}
 		}
 	}
 
 	close(sfd);
-
-	for (i = 0; i < count; i++) {
-		if (!zero_pids[i])
-			continue;
-
-		waitpid(zero_pids[i], &wstatus, 0);
-		zero_pids[i] = 0;
-		if (!WIFEXITED(wstatus) || WEXITSTATUS(wstatus))
-			ret = 1;
-	}
 
 	if (interrupted) {
 		pr_err("zeroing interrupted!\n");
